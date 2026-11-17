@@ -1,0 +1,67 @@
+# Gitignore settings for ESPHome
+# This is an example and may include too much for your use-case.
+# You can modify this file to suit your needs.
+# ==================================
+# SECRETS AND CREDENTIALS
+# ==================================
+/secrets.yaml
+*.pem
+*.key
+*.p12
+*.pfx
+
+# ==================================
+# ESPHOME BUILD FILES AND CACHE
+# ==================================
+/.esphome/
+/build/
+**/.esphome/
+
+# ==================================
+# PYTHON CACHE
+# ==================================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ==================================
+# COMPILED FIRMWARE AND BUILD OUTPUT
+# ==================================
+*.bin
+*.elf
+*.hex
+*.map
+*.o
+*.a
+
+# ==================================
+# LOGS AND TEMPORARY FILES
+# ==================================
+*.log
+compile-log.txt
+*.tmp
+*.temp
+*.bak
+*.old
+
+# ==================================
+# IDE AND EDITOR FILES
+# ==================================
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ==================================
+# VIRTUAL ENVIRONMENTS
+# ==================================
+.venv/
+venv/
+env/
+
+# ==================================
+# GIT AND OS FILES
+# ==================================
+desktop.ini

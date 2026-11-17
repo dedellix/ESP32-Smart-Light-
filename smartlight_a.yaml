@@ -1,0 +1,123 @@
+
+substitutions:
+  device_name: "esp32-smart-light"
+  friendly_name: "ESP32 Smart Light"
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+# Wi-Fi
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  ap:
+    ssid: "${device_name}-Fallback"
+    password: !secret fallback_ap_password
+
+captive_portal:
+
+# Serial logging
+logger:
+  baud_rate: 115200
+
+# Native API for ESPHome Device Builder
+api:
+  encryption:
+    key: !secret api_encryption_key
+  reboot_timeout: 0s
+
+# Wireless firmware updates
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+# Browser control interface
+web_server:
+  port: 80
+  version: 2
+  local: true
+  log: false
+  ota: false
+  auth:
+    username: !secret web_username
+    password: !secret web_password
+    type: digest
+
+# LED outputs
+output:
+  # White LED: PWM brightness control
+  - platform: ledc
+    pin: GPIO33
+    id: white_led_output
+    frequency: 1000 Hz
+
+  # Red LED: PWM brightness control
+  - platform: ledc
+    pin: GPIO32
+    id: red_led_output
+    frequency: 1000 Hz
+
+# Browser-controllable lights
+light:
+  - platform: monochromatic
+    output: white_led_output
+    name: "${friendly_name} White Light"
+    id: smart_light
+    restore_mode: ALWAYS_OFF
+
+  - platform: monochromatic
+    output: red_led_output
+    name: "${friendly_name} Red Status LED"
+    id: status_led
+    restore_mode: ALWAYS_OFF
+
+# Physical button
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO27
+      mode:
+        input: true
+        pullup: true
+      inverted: true
+    name: "${friendly_name} Button"
+    id: user_button
+    filters:
+      - delayed_on: 20ms
+      - delayed_off: 20ms
+    on_press:
+      - light.toggle: smart_light
+
+# DHT11 temperature and humidity sensor
+sensor:
+  - platform: dht
+    pin: GPIO26
+    model: DHT11
+
+    temperature:
+      name: "${friendly_name} Temperature"
+
+    humidity:
+      name: "${friendly_name} Humidity"
+      id: room_humidity
+
+      # Automatic red LED humidity alarm
+      on_value_range:
+        - above: 70.0
+          then:
+            - light.turn_on:
+                id: status_led
+                brightness: 100%
+
+        - below: 65.0
+          then:
+            - light.turn_off: status_led
+
+    update_interval: 5s
